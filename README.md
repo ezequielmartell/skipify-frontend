@@ -22,8 +22,6 @@ In future updates, I plan to add the following features to enhance the functiona
 
 ## Getting Started
 
-To get started with the Django AWS frontend, follow these steps:
-
 - Check it out at https://skipify.ezdoes.xyz (it will more sense once I give you the ability to register)
 
 ## Contributing
