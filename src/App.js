@@ -4,7 +4,7 @@ import './index.css'
 var crypto = require('crypto');
 var querystring = require('querystring');
 
-const url = "https://spotify.ezdoes.xyz"
+const url = "https://skipify.ezdoes.xyz"
 
 const generateRandomString = (length) => {
     return crypto
@@ -21,7 +21,7 @@ function spotifyAuth() {
     // your application requests authorization
     var client_id = 'a5a8250bf7bb4856ac09e794be4fd8e1';
     var scope = 'user-modify-playback-state user-read-currently-playing';
-    var redirect_uri = 'https://spotify.ezdoes.xyz/callback'
+    var redirect_uri = 'https://skipify.ezdoes.xyz/callback'
     var result = 'https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
