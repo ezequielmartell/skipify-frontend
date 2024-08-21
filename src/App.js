@@ -4,7 +4,7 @@ import './index.css'
 var crypto = require('crypto');
 var querystring = require('querystring');
 
-const url = "https://skipify.ezdoes.xyz"
+const url = process.env.REACT_APP_URL
 
 const generateRandomString = (length) => {
     return crypto
@@ -19,9 +19,9 @@ function spotifyAuth() {
     var state = generateRandomString(16);
     // res.cookie(stateKey, state);
     // your application requests authorization
-    var client_id = 'a5a8250bf7bb4856ac09e794be4fd8e1';
-    var scope = 'user-modify-playback-state user-read-currently-playing';
-    var redirect_uri = 'https://skipify.ezdoes.xyz/callback'
+    var client_id = process.env.REACT_APP_CLIENT_ID;
+    var scope = process.env.REACT_APP_SCOPE;
+    var redirect_uri = 'https://skipify.ezdoes.xyz/callback';
     var result = 'https://accounts.spotify.com/authorize?' +
         querystring.stringify({
             response_type: 'code',
@@ -37,6 +37,7 @@ function spotifyAuth() {
 export default function Skippy() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [boycottState, setBoycottState] = useState(false);
@@ -49,6 +50,10 @@ export default function Skippy() {
 
     function handlePassword(e) {
         setPassword(e.target.value);
+    }
+
+    function handleEmail(e) {
+        setEmail(e.target.value);
     }
 
     function handleNewArtist(e) {
@@ -106,13 +111,67 @@ export default function Skippy() {
             });
     }
 
+    // function isResponseOk(response) {
+    //     let responseJson = response.json()
+    //     console.log("isResponseOk")
+    //     console.log(response)
+    //     console.log(responseJson)
+    //     if (response.status >= 200 && response.status <= 299) {
+    //         return responseJson;
+    //     } else {
+    //         console.log("response not ok")
+    //         throw Error(responseJson);
+    //     }
+    // }
+
     function isResponseOk(response) {
+        console.log(response)
         if (response.status >= 200 && response.status <= 299) {
             return response.json();
         } else {
-            throw Error(response.statusText);
+            console.log("response not ok")
+            return response.json().then((errorData) => {
+                console.log(errorData)
+                const error = new Error(errorData.message || "An error occurred");
+                // error.response = response;
+                // Promise.reject(error);
+                // error.data = errorData;
+                return Promise.reject(error);
+                // return Promise.reject(errorData);
+                // throw errorData;
+            });
         }
     }
+
+    function signup(e) {
+        e.preventDefault();
+        fetch(`${url}/api/signup/`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": cookies.get("csrftoken"),
+            },
+            //credentials: "same-origin",
+            body: JSON.stringify({ username: username, email: email, password: password }),
+        })
+            .then(isResponseOk)
+            .then((data) => {
+                console.log(data);
+                setIsAuthenticated(true)
+                setUsername('')
+                setEmail('')
+                setPassword('')
+                setError('')
+                return (
+                    <button onClick={window.open("/", '_self')}>loading home...</button>
+                )
+            })
+            .catch((err) => {
+                setError(err.toString());
+                console.log(err);
+            })
+    }
+
 
     function login(e) {
         e.preventDefault();
@@ -125,6 +184,7 @@ export default function Skippy() {
             credentials: "same-origin",
             body: JSON.stringify({ username: username, password: password }),
         })
+            // .then((res) => res.json())
             .then(isResponseOk)
             .then((data) => {
                 console.log(data);
@@ -134,10 +194,11 @@ export default function Skippy() {
                 setError('')
             })
             .catch((err) => {
+                setError(err.toString());
                 console.log(err);
-                setError("Wrong username or password.");
-            });
+            })
     }
+    // fetch().then((data) => data.json()).catch((error) => console.log(error))
 
     function logout() {
         fetch(`${url}/api/logout`, {
@@ -165,8 +226,10 @@ export default function Skippy() {
             .then((data) => {
                 console.log(data)
                 let array = data.artists
-                array.sort()
-                setBadArtistsArray(array)
+                if (array) {
+                    array.sort()
+                    setBadArtistsArray(array)
+                }
             })
     }
     async function removeArtist(e, item) {
@@ -216,14 +279,42 @@ export default function Skippy() {
             });
     }
 
-    //   function handleAgeChange() {
-    //     setAge(age + 1);
-    //   }
-
     useEffect(() => { getSession() }, [])
     useEffect(() => { getBoycottState() }, [boycottState])
     useEffect(() => { fetchArtists() }, badArtistsArray)
     if (!isAuthenticated) {
+        if (window.location.pathname === "/signup/") {
+            return (
+                <div className="container">
+                    <h1>Spotify Artist Boycotting Service </h1>
+                    <h2>New User Registration</h2>
+                    <div className="form-group">
+                        <form onSubmit={signup}>
+                            <div>
+                                <label htmlFor="username">Username:&nbsp;</label>
+                                <input type="text" className="form-control" id="username" name="username" value={username} onChange={handleUserName} />
+                            </div>
+                            <div>
+                                <label htmlFor="email">Email:&nbsp;</label>
+                                <input type="text" className="form-control" id="email" name="email" value={email} onChange={handleEmail} />
+                            </div>
+                            <div>
+                                <label htmlFor="username">Password:&nbsp;&nbsp;</label>
+                                <input type="password" className="form-control" id="password" name="password" value={password} onChange={handlePassword} />
+                                {error &&
+                                    <div>
+                                        <small className="text-danger">
+                                            {error}
+                                        </small>
+                                    </div>
+                                }
+                            </div>
+                            <button type="submit" className="btn btn-primary">Sign Up!</button>
+                        </form>
+                    </div>
+                </div>
+            )
+        }
         return (
             <div className="container">
                 <h1>Spotify Artist Boycotting Service </h1>
@@ -238,13 +329,15 @@ export default function Skippy() {
                             <label htmlFor="username">Password:&nbsp;&nbsp;</label>
                             <input type="password" className="form-control" id="password" name="password" value={password} onChange={handlePassword} />
                             {error &&
-                                <small className="text-danger">
-                                    {error}
-                                </small>
+                                <div>
+                                    <small className="text-danger">
+                                        {error}
+                                    </small>
+                                </div>
                             }
                         </div>
                         <button type="submit" className="btn btn-primary">Login</button>
-
+                        <button className="btn btn-danger" onClick={() => window.open("/signup/", '_self')}>Register</button>
                     </form>
                 </div>
             </div>
@@ -279,21 +372,24 @@ export default function Skippy() {
                 </label>
                 <button className="btn btn-danger" onClick={logout}>Log out</button>
                 <div className="row">
-                <div className="column-left">
-                <form onSubmit={appendArtist}>
-                    <div className="form-group-right">
-                        <label htmlFor="username">Start Skipping another artist? </label>
-                        <input type="text" className="form-control" id="username" onChange={handleNewArtist} />
-                        <button type="submit" className="btn btn-primary">Submit</button>
+                    <div className="column-left">
+                        <form onSubmit={appendArtist}>
+                            <div className="form-group-right">
+                                <label htmlFor="username">Start Skipping another artist? </label>
+                                <input type="text" className="form-control" id="username" onChange={handleNewArtist} />
+                                <button type="submit" className="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
                     </div>
-                </form>
-                </div>
-                <div className="column-right">
-                <p>Artists we're boycotting: </p>
-                <ul>{badArtistsList}</ul>
-                </div>
+                    <div className="column-right">
+                        <p>Artists we're boycotting: </p>
+                        <ul>{badArtistsList}</ul>
+                    </div>
                 </div>
             </div>
         )
     }
 }
+
+
+// npm run build && docker compose -f ../django-aws-backend/docker-compose.yml up -d --build skipify
