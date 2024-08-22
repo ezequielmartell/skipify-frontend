@@ -41,7 +41,7 @@ export default function Skippy() {
     const [error, setError] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [boycottState, setBoycottState] = useState(false);
-    const [badArtistsArray, setBadArtistsArray] = useState(['dale']);
+    const [badArtistsArray, setBadArtistsArray] = useState(['']);
     const [newArtist, setNewArtists] = useState('');
 
     function handleUserName(e) {
@@ -70,77 +70,48 @@ export default function Skippy() {
             credentials: "same-origin",
             body: JSON.stringify({ boycott: toggle }),
         })
-            .then((res) => res.json())
+            .then(isResponseOk)
             .then((data) => {
                 console.log(data);
-                if (data.boycott) {
-                    setBoycottState(true);
-                } else {
-                    setBoycottState(false);
-                }
+                setBoycottState(data.boycott)
             });
     }
+    
+    function isResponseOk(response) {
+        // console.log(response)
+        if (response.status >= 200 && response.status <= 299) {
+            return response.json();
+        } else {
+            return response.json().then((errorData) => {
+                const error = new Error(errorData.message || "An error occurred");
+                return Promise.reject(error);
+            });
+        }
+    }
+
 
     function getSession() {
         fetch(`${url}/api/session/`, {
             credentials: "same-origin",
         })
-            .then((res) => res.json())
+            .then(isResponseOk)
             .then((data) => {
                 console.log(data);
-                if (data.isAuthenticated) {
-                    setIsAuthenticated(true);
-                } else {
-                    setIsAuthenticated(false);
-                }
-            });
+                setIsAuthenticated(data.isAuthenticated);
+            })
+            .catch((err) => {
+                console.log(err)});
     }
 
     async function getBoycottState() {
         await fetch(`${url}/api/boycott/`, {
             credentials: "same-origin",
         })
-            .then((res) => res.json())
+            .then(isResponseOk)
             .then((data) => {
                 console.log(data);
-                if (data.boycott) {
-                    setBoycottState(true);
-                } else {
-                    setBoycottState(false);
-                }
+                setBoycottState(data.boycott)
             });
-    }
-
-    // function isResponseOk(response) {
-    //     let responseJson = response.json()
-    //     console.log("isResponseOk")
-    //     console.log(response)
-    //     console.log(responseJson)
-    //     if (response.status >= 200 && response.status <= 299) {
-    //         return responseJson;
-    //     } else {
-    //         console.log("response not ok")
-    //         throw Error(responseJson);
-    //     }
-    // }
-
-    function isResponseOk(response) {
-        console.log(response)
-        if (response.status >= 200 && response.status <= 299) {
-            return response.json();
-        } else {
-            console.log("response not ok")
-            return response.json().then((errorData) => {
-                console.log(errorData)
-                const error = new Error(errorData.message || "An error occurred");
-                // error.response = response;
-                // Promise.reject(error);
-                // error.data = errorData;
-                return Promise.reject(error);
-                // return Promise.reject(errorData);
-                // throw errorData;
-            });
-        }
     }
 
     function signup(e) {
@@ -172,7 +143,6 @@ export default function Skippy() {
             })
     }
 
-
     function login(e) {
         e.preventDefault();
         fetch(`${url}/api/login/`, {
@@ -198,7 +168,6 @@ export default function Skippy() {
                 console.log(err);
             })
     }
-    // fetch().then((data) => data.json()).catch((error) => console.log(error))
 
     function logout() {
         fetch(`${url}/api/logout`, {
@@ -212,7 +181,7 @@ export default function Skippy() {
             .catch((err) => {
                 console.log(err);
             });
-    };
+    }
 
     async function fetchArtists() {
         await fetch(`${url}/api/artists/`, {
@@ -222,7 +191,7 @@ export default function Skippy() {
             },
             credentials: "same-origin"
         })
-            .then((res) => res.json())
+            .then(isResponseOk)
             .then((data) => {
                 console.log(data)
                 let array = data.artists
@@ -232,6 +201,7 @@ export default function Skippy() {
                 }
             })
     }
+
     async function removeArtist(e, item) {
         e.preventDefault();
         await fetch(`${url}/api/artists/`, {
@@ -243,8 +213,8 @@ export default function Skippy() {
             credentials: "same-origin",
             body: JSON.stringify({ remove: item }),
         })
-            .then((res) => res.json(),
-                fetchArtists())
+            .then(isResponseOk)
+        fetchArtists()
     }
 
     function appendArtist(e) {
@@ -259,7 +229,7 @@ export default function Skippy() {
                 credentials: "same-origin",
                 body: JSON.stringify({ append: newArtist }),
             })
-                .then((res) => res.json())
+                .then(isResponseOk)
             fetchArtists()
         }
     }
