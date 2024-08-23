@@ -35,7 +35,6 @@ function spotifyAuth() {
 
 
 export default function Skippy() {
-    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
@@ -43,10 +42,6 @@ export default function Skippy() {
     const [boycottState, setBoycottState] = useState(false);
     const [badArtistsArray, setBadArtistsArray] = useState(['']);
     const [newArtist, setNewArtists] = useState('');
-
-    function handleUserName(e) {
-        setUsername(e.target.value);
-    }
 
     function handlePassword(e) {
         setPassword(e.target.value);
@@ -123,13 +118,12 @@ export default function Skippy() {
                 "X-CSRFToken": cookies.get("csrftoken"),
             },
             //credentials: "same-origin",
-            body: JSON.stringify({ username: username, email: email, password: password }),
+            body: JSON.stringify({ email: email, password: password }),
         })
             .then(isResponseOk)
             .then((data) => {
                 console.log(data);
                 setIsAuthenticated(true)
-                setUsername('')
                 setEmail('')
                 setPassword('')
                 setError('')
@@ -152,14 +146,14 @@ export default function Skippy() {
                 "X-CSRFToken": cookies.get("csrftoken"),
             },
             credentials: "same-origin",
-            body: JSON.stringify({ username: username, password: password }),
+            body: JSON.stringify({ email: email, password: password }),
         })
             // .then((res) => res.json())
             .then(isResponseOk)
             .then((data) => {
                 console.log(data);
                 setIsAuthenticated(true)
-                setUsername('')
+                setEmail('')
                 setPassword('')
                 setError('')
             })
@@ -261,10 +255,6 @@ export default function Skippy() {
                     <div className="form-group">
                         <form onSubmit={signup}>
                             <div>
-                                <label htmlFor="username">Username:&nbsp;</label>
-                                <input type="text" className="form-control" id="username" name="username" value={username} onChange={handleUserName} />
-                            </div>
-                            <div>
                                 <label htmlFor="email">Email:&nbsp;</label>
                                 <input type="text" className="form-control" id="email" name="email" value={email} onChange={handleEmail} />
                             </div>
@@ -291,10 +281,10 @@ export default function Skippy() {
                 <h2>Login</h2>
                 <div className="form-group">
                     <form onSubmit={login}>
-                        <div>
-                            <label htmlFor="username">Username:&nbsp;</label>
-                            <input type="text" className="form-control" id="username" name="username" value={username} onChange={handleUserName} />
-                        </div>
+                    <div>
+                                <label htmlFor="email">Email:&nbsp;</label>
+                                <input type="text" className="form-control" id="email" name="email" value={email} onChange={handleEmail} />
+                            </div>
                         <div>
                             <label htmlFor="username">Password:&nbsp;&nbsp;</label>
                             <input type="password" className="form-control" id="password" name="password" value={password} onChange={handlePassword} />
