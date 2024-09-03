@@ -303,7 +303,7 @@ export default function Skippy() {
             </div>
         );
     }
-    if (window.location.pathname === "/callback/") {
+    if (window.location.pathname === "/callback") {
         const queryParameters = new URLSearchParams(window.location.search)
         const code = queryParameters.get("code")
         // this.codeAuth(code).then(null)
