@@ -9,13 +9,13 @@ RUN npm install
 # Copy the entire application code to the container
 COPY . .
 # Build the React app for production
-# Build the React app for production, passing environment variables
-ARG REACT_APP_URL
-ENV REACT_APP_URL=$REACT_APP_URL
-ARG REACT_APP_CLIENT_ID
-ENV REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID
-ARG REACT_APP_SCOPE
-ENV REACT_APP_SCOPE=$REACT_APP_SCOPE
+# # Build the React app for production, passing environment variables
+# ARG REACT_APP_URL
+# ENV REACT_APP_URL=$REACT_APP_URL
+# ARG REACT_APP_CLIENT_ID
+# ENV REACT_APP_CLIENT_ID=$REACT_APP_CLIENT_ID
+# ARG REACT_APP_SCOPE
+# ENV REACT_APP_SCOPE=$REACT_APP_SCOPE
 RUN npm run build
 # Use Nginx as the production server
 FROM nginx:alpine
