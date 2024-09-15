@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - main
-env:
-  REACT_APP_URL: ${{ secrets.REACT_APP_URL }}
-  REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
-  REACT_APP_SCOPE: ${{ secrets.REACT_APP_SCOPE }}
+# env:
+#   REACT_APP_URL: ${{ secrets.REACT_APP_URL }}
+#   REACT_APP_CLIENT_ID: ${{ secrets.REACT_APP_CLIENT_ID }}
+#   REACT_APP_SCOPE: ${{ secrets.REACT_APP_SCOPE }}
 
 permissions:
         id-token: write # This is required for requesting the JWT
@@ -37,5 +37,9 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: django-aws-frontend
         run: |
-          docker build -t $REGISTRY/$REPOSITORY .
+          docker build \
+          --build-arg REACT_APP_URL=${{ secrets.REACT_APP_URL }} \
+          --build-arg REACT_APP_CLIENT_ID=${{ secrets.REACT_APP_CLIENT_ID }} \
+          --build-arg REACT_APP_SCOPE=${{ secrets.REACT_APP_SCOPE }} \
+          -t $REGISTRY/$REPOSITORY .
           docker push $REGISTRY/$REPOSITORY
