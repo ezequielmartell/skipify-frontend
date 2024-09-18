@@ -10,8 +10,8 @@ permissions:
         contents: read  # This is required for actions/checkout
 
 jobs:
-  Deployment:
-      name: Deployment
+  build:
+      name: Build and Push
       runs-on: ubuntu-latest
       steps:
       
@@ -35,3 +35,15 @@ jobs:
         run: |
           docker build -t $REGISTRY/$REPOSITORY .
           docker push $REGISTRY/$REPOSITORY
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
+        with:
+          role-to-assume: arn:aws:iam::637423655132:role/github-actions_role
+          aws-region: us-east-2
+      - run: |
+          echo "Creating deployment" for Frontend
+          aws deploy create-deployment --cli-input-yaml file://codedeploy/appspec.yaml
