@@ -250,7 +250,7 @@ export default function Skippy() {
         if (window.location.pathname === "/signup/") {
             return (
                 <div className="container">
-                    <h1>Spotify Artist Boycotting Service New</h1>
+                    <h1>Spotify Artist Boycotting Service</h1>
                     <h2>New User Registration</h2>
                     <div className="form-group">
                         <form onSubmit={signup}>
@@ -277,7 +277,7 @@ export default function Skippy() {
         }
         return (
             <div className="container">
-                <h1>Spotify Artist Boycotting Service </h1>
+                <h1>Spotify Artist Boycotting Service New</h1>
                 <h2>Login</h2>
                 <div className="form-group">
                     <form onSubmit={login}>
