@@ -1,5 +1,5 @@
 name: GitHub Actions
-run-name: ${{ github.actor }} has merged to main. Building and pushing docker image to Amazon ECR.
+run-name: ${{ github.actor }} merged to main. Building and pushing docker image to Amazon ECR.
 on:
   push:
     branches:
@@ -34,8 +34,12 @@ jobs:
           REPOSITORY: django-aws-frontend
         run: |
           docker build -t $REGISTRY/$REPOSITORY .
+          echo "############################################"
+          echo "#######  Pushing image to Amazon ECR  ######"
+          echo "############################################"
           docker push $REGISTRY/$REPOSITORY
   deploy:
+    name: Create Deployment
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -49,11 +53,5 @@ jobs:
           role-to-assume: arn:aws:iam::637423655132:role/github-actions_role
           aws-region: us-east-2
       - run: |
-          echo "Creating deployment" for Frontend
-          echo "##################"
-          ls ${{ github.workspace }}
-          echo "##################"
-          ls ${{ github.workspace }}/codedeploy
-          echo "##################"
-          ls 
+          echo "Creating deployment for Frontend Service"
           aws deploy create-deployment --cli-input-yaml file://codedeploy/appspec.yaml
