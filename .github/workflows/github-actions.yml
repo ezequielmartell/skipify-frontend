@@ -39,6 +39,10 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
+      
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4 # More information on this action can be found below in the 'AWS Credentials' section
         with:
@@ -50,4 +54,6 @@ jobs:
           ls ${{ github.workspace }}
           echo "##################"
           ls ${{ github.workspace }}/codedeploy
+          echo "##################"
+          ls 
           aws deploy create-deployment --cli-input-yaml file://codedeploy/appspec.yaml
