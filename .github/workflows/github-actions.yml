@@ -33,6 +33,9 @@ jobs:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: django-aws-frontend
         run: |
+          echo "############################################"
+          echo "#######        Building Image         ######"
+          echo "############################################"
           docker build -t $REGISTRY/$REPOSITORY .
           echo "############################################"
           echo "#######  Pushing image to Amazon ECR  ######"
@@ -43,7 +46,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      
       - name: Checkout repo
         uses: actions/checkout@v3
 
