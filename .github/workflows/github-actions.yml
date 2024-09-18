@@ -46,4 +46,8 @@ jobs:
           aws-region: us-east-2
       - run: |
           echo "Creating deployment" for Frontend
+          echo "##################"
+          ls ${{ github.workspace }}
+          echo "##################"
+          ls ${{ github.workspace }}/codedeploy
           aws deploy create-deployment --cli-input-yaml file://codedeploy/appspec.yaml
